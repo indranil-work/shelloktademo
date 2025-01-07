@@ -5,16 +5,22 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useUser } from '../context/UserContext';
 
 const Home = () => {
-  const { selectedJourney, setSelectedJourney, selectedLocale } = useUser();
+  const { selectedJourney, setSelectedJourney, selectedLocale, getClientConfig } = useUser();
   const { loginWithRedirect } = useAuth0();
 
-  const handleGetStarted = () => {
+  const handleGetStarted = async () => {
     if (!selectedJourney) {
       alert("Please select a journey first");
       return;
     }
-    alert(`Selected locale: ${selectedLocale}\nSelected journey: ${selectedJourney}`);
-    loginWithRedirect();
+    const config = getClientConfig();
+    alert(`Selected locale: ${selectedLocale}\nSelected journey: ${selectedJourney}\nUsing clientId: ${config.clientId}`);
+    
+    await loginWithRedirect({
+      authorizationParams: {
+        ui_locales: selectedLocale
+      }
+    });
   };
 
   return (

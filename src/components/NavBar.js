@@ -5,16 +5,22 @@ import headerIcon from '../assets/header-icon.png';
 import { useUser } from '../context/UserContext';
 
 const NavBar = () => {
-  const { selectedLocale, setSelectedLocale, selectedJourney } = useUser();
+  const { selectedLocale, setSelectedLocale, selectedJourney, getClientConfig } = useUser();
   const { 
     isAuthenticated, 
     loginWithRedirect, 
     logout 
   } = useAuth0();
 
-  const handleLogin = () => {
-    alert(`Selected locale: ${selectedLocale}\nSelected journey: ${selectedJourney}`);
-    loginWithRedirect();
+  const handleLogin = async () => {
+    const config = getClientConfig();
+    alert(`Selected locale: ${selectedLocale}\nSelected journey: ${selectedJourney}\nUsing clientId: ${config.clientId}`);
+    
+    await loginWithRedirect({
+      authorizationParams: {
+        ui_locales: selectedLocale
+      }
+    });
   };
 
   return (
@@ -58,7 +64,7 @@ const NavBar = () => {
           className="locale-select"
         >
           <option value="en-US">en-US</option>
-          <option value="de-DE">de-DE</option>
+          <option value="de">de-DE</option>
         </select>
       </div>
     </nav>
