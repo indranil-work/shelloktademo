@@ -1,0 +1,359 @@
+:root {
+  --shell-yellow: #FCD217;
+  --shell-navy: #1E2336;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4rem;
+  background: white;
+  height: 80px;
+}
+
+.login-button {
+  background-color: var(--shell-navy);
+  color: white;
+  padding: 0.5rem 2rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.logo {
+  height: 40px;
+}
+
+.locale-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 14px;
+}
+
+.main-content {
+  flex-grow: 1;
+  background-color: var(--shell-yellow);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.home-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
+  height: calc(100vh - 80px);
+  overflow: hidden;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0;
+  z-index: 1;
+}
+
+.home-content {
+  position: relative;
+  z-index: 3;
+  padding: 6rem 4rem 4rem 0;
+  max-width: 600px;
+  margin-left: 4rem;
+}
+
+h1 {
+  font-size: 48px;
+  color: var(--shell-navy);
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+  font-weight: 500;
+}
+
+.description {
+  font-size: 16px;
+  color: var(--shell-navy);
+  margin-bottom: 3rem;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+.journey-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.journey-selector label {
+  color: var(--shell-navy);
+  font-size: 14px;
+}
+
+.journey-selector select {
+  --rem: 16;
+  font-size: 12px;
+  border-width: 0 0 1px 0 !important;
+  border-style: solid !important;
+  border-color: rgba(30, 30, 80, 0.3) !important;
+  min-width: inherit;
+  text-align: left;
+  background-color: transparent;
+  z-index: 10;
+  width: 360px;
+  padding: 8px 40px 8px 0;
+  border-radius: 0 !important;
+  font-family: 'Averta', sans-serif;
+  font-weight: 600;
+  color: #1E1E50;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: transparent;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  cursor: pointer;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.journey-selector select:focus {
+  outline: none !important;
+  border-width: 0 0 1px 0 !important;
+  border-color: #1E1E50 !important;
+  box-shadow: none !important;
+}
+
+.get-started-button {
+  background-color: var(--shell-navy);
+  color: white;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.decorative-image {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28%;
+  max-width: 500px;
+  z-index: 0;
+}
+
+.wave-background {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 180px;
+  background-repeat: no-repeat;
+  background-position: bottom;
+  background-size: 100% auto;
+  z-index: 1;
+  width: 100vw;
+}
+
+/* Navbar styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 4rem;
+  background: white;
+  height: 80px;
+  font-family: 'Averta', sans-serif;
+}
+
+.login-btn {
+  background: #1E1E50;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: 'Averta', sans-serif;
+}
+
+.shell-logo {
+  height: 40px;
+}
+
+.locale-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Averta', sans-serif;
+  font-size: 14px;
+}
+
+.locale-select {
+  border: 1px solid #ccc;
+  padding: 4px;
+  min-width: 120px;
+  font-family: 'Averta', sans-serif;
+  font-size: 14px;
+}
+
+/* Landing page styles */
+.landing-page {
+  background-color: #FCD848;
+  min-height: calc(100vh - 80px);
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+
+.landing-content {
+  max-width: 600px;
+  margin-left: 120px;
+  padding-top: 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.landing-content h1 {
+  font-size: 48px;
+  color: #333;
+  margin-bottom: 32px;
+  line-height: 1.2;
+  font-weight: 600;
+  font-family: 'Averta', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.landing-content p {
+  font-family: 'Averta', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 48px;
+}
+
+.journey-selector {
+  margin-bottom: 32px;
+}
+
+.journey-selector label {
+  display: block;
+  margin-bottom: 12px;
+  color: #333;
+  font-weight: 500;
+  font-family: 'Averta', sans-serif;
+  font-size: 14px;
+}
+
+.journey-selector select {
+  width: 360px;
+  padding: 12px;
+  border: 1px solid #333;
+  background: transparent;
+  margin-bottom: 32px;
+  font-size: 16px;
+  font-family: 'Averta', sans-serif;
+  font-weight: 400;
+}
+
+.start-btn {
+  background: #1E1E50;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: 'Averta', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.decorative-image {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28%;
+  max-width: 500px;
+  z-index: 0;
+}
+
+.wave-image {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Container adjustment from App.js */
+.container {
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: 100% !important;
+}
+
+@font-face {
+  font-family: 'Averta';
+  src: url('./assets/fonts/Averta.otf') format('opentype');
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-link {
+  color: #1E1E50;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.nav-link:hover {
+  color: #343a40;
+}
+
+.nav-link-active {
+  color: #1E1E50;
+  border-bottom: 2px solid #1E1E50;
+}
+
+.logout-btn {
+  background: #1E1E50;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.logout-btn:hover {
+  background: #2a2a6a;
+}
