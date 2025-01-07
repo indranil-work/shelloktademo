@@ -40,7 +40,7 @@ const Home = () => {
             id="journey-options"
           >
             <option value="email1">Email/Password with Self-registration (U)</option>
-            <option value="email2">Email/Password with Self-registration</option>
+            <option value="email22">Email/Password with Self-registration</option>
           </select>
         </div>
 
