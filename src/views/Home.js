@@ -1,4 +1,5 @@
 import React from "react";
+import { useHistory } from "react-router-dom";
 import waveImage from '../assets/background-bottom.png';
 import decorativeImage from '../assets/background-right.png';
 import { useAuth0 } from "@auth0/auth0-react";
@@ -6,7 +7,8 @@ import { useUser } from '../context/UserContext';
 
 const Home = () => {
   const { selectedJourney, setSelectedJourney, selectedLocale, getClientConfig } = useUser();
-  const { loginWithRedirect } = useAuth0();
+  const { loginWithRedirect, isAuthenticated, user } = useAuth0();
+  const history = useHistory();
 
   const handleGetStarted = async () => {
     if (!selectedJourney) {
@@ -22,6 +24,33 @@ const Home = () => {
       }
     });
   };
+
+  if (isAuthenticated) {
+    return (
+      <div className="landing-page">
+        <div className="landing-content">
+          <h1>
+            You're Logged In!
+          </h1>
+          
+          <p>
+            Navigate to your profile to edit your details, change a<br />
+            password, and/or view other options
+          </p>
+
+          <button 
+            className="profile-btn" 
+            onClick={() => history.push('/profile')}
+          >
+            GO TO MY PROFILE
+          </button>
+        </div>
+        
+        <img src={decorativeImage} alt="" className="decorative-image" />
+        <img src={waveImage} alt="" className="wave-image" />
+      </div>
+    );
+  }
 
   return (
     <div className="landing-page">
