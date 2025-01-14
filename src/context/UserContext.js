@@ -41,6 +41,9 @@ export const UserProvider = ({ children }) => {
         authorizationParams={{
           redirect_uri: window.location.origin,
         }}
+        useRefreshTokens={true}
+        cacheLocation="localstorage"
+        issuer={config.auth0.issuerBaseURL}
       >
         {children}
       </Auth0Provider>

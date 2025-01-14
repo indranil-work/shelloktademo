@@ -1,15 +1,19 @@
 {
-  "domain": "shelldemo.oktademo.cloud",
+  "domain": "shellcipm-proxy.onrender.com",
   "clientId": "FeVF2xXNARNb0W1GGgQ2y7I4ZeBIWzdb",
   "audience": "https://demo.okta.com",
+  "auth0": {
+    "issuerBaseURL": "https://shelldemo.oktademo.cloud/"
+  },
   "journeyConfig": {
     "email1": {
       "clientId": "FeVF2xXNARNb0W1GGgQ2y7I4ZeBIWzdb",
-      "domain": "shelldemo.oktademo.cloud"
+      "domain": "shellcipm-proxy.onrender.com"
     },
     "email22": {
       "clientId": "CE4GY2dAUwKvQi7FlCBrq9NynP2bCUci",
       "domain": "shelldemo.oktademo.cloud"
     }
-  }
+  },
+  "apiUrl": "https://shellcipm-middleware.onrender.com/api"
 }

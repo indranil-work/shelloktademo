@@ -1,45 +1,111 @@
 import React, { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import config from "../auth_config.json";
 
-const PersonalDetails = ({ user }) => (
-  <>
-    <h1>
-      <span className="icon">👤</span>
-      Personal details
-    </h1>
+const PersonalDetails = ({ user }) => {
+  const [formData, setFormData] = useState({
+    given_name: user?.given_name || '',
+    family_name: user?.family_name || '',
+    email: user?.email || '',
+    phoneNumber: user?.phoneNumber || ''
+  });
 
-    <form className="profile-form">
-      <div className="form-row">
-        <div className="form-group">
-          <label>First name *</label>
-          <input type="text" value={user?.given_name || ''} readOnly />
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const userId = user["https://auth0.com/user_id"];
+      const response = await fetch(`${config.apiUrl}/users/${userId}/personal-details`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.given_name,
+          lastName: formData.family_name,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update personal details');
+      }
+
+      const result = await response.json();
+      console.log('Personal details updated successfully', result);
+      // You might want to show a success message here
+      
+    } catch (error) {
+      console.error('Error updating personal details:', error);
+      // You might want to show an error message here
+    }
+  };
+
+  return (
+    <>
+      <h1>
+        <span className="icon">👤</span>
+        Personal details
+      </h1>
+
+      <form className="profile-form" onSubmit={handleSubmit}>
+        <div className="form-row">
+          <div className="form-group">
+            <label>First name *</label>
+            <input 
+              type="text" 
+              name="given_name"
+              value={formData.given_name}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="form-group">
+            <label>Last name *</label>
+            <input 
+              type="text" 
+              name="family_name"
+              value={formData.family_name}
+              onChange={handleInputChange}
+            />
+          </div>
         </div>
-        <div className="form-group">
-          <label>Last name *</label>
-          <input type="text" value={user?.family_name || ''} readOnly />
+
+        <div className="form-group full-width">
+          <label>Email address *</label>
+          <input type="email" value={user?.email || ''} readOnly />
+          <a href="#" className="change-email-link">Change email</a>
         </div>
-      </div>
 
-      <div className="form-group full-width">
-        <label>Email address *</label>
-        <input type="email" value={user?.email || ''} readOnly />
-        <a href="#" className="change-email-link">Change email</a>
-      </div>
-
-      <div className="form-group full-width">
-        <label>Mobile phone</label>
-        <div className="phone-input">
-          <select className="country-code">
-            <option value="US">🇺🇸 +1</option>
-          </select>
-          <input type="tel" placeholder="Mobile phone" />
+        <div className="form-group full-width">
+          <label>Mobile phone</label>
+          <div className="phone-input">
+            <select className="country-code">
+              <option value="US">🇺🇸 +1</option>
+            </select>
+            <input 
+              type="tel"
+              name="phoneNumber"
+              placeholder="Mobile phone"
+              value={formData.phoneNumber}
+              onChange={handleInputChange}
+            />
+          </div>
         </div>
-      </div>
 
-      <button type="submit" className="save-btn">Save changes</button>
-    </form>
-  </>
-);
+        <button type="submit" className="save-btn">Save changes</button>
+      </form>
+    </>
+  );
+};
 
 const ChangePassword = () => {
   const [currentPassword, setCurrentPassword] = useState("");
