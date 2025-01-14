@@ -14,6 +14,10 @@
       "clientId": "CE4GY2dAUwKvQi7FlCBrq9NynP2bCUci",
       "domain": "shelldemo.oktademo.cloud",
       "apiUrl": "http://localhost:3001/api"
+    },
+    "sniper_link": {
+      "clientId": "Xp0v4LI2HebrEWV9gV5WylyRkejP3joP",
+      "domain": "shelldemo.oktademo.cloud"
     }
   },
   "apiUrl": "https://shellcipm-middleware.onrender.com/api"
