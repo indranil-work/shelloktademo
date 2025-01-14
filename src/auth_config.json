@@ -12,8 +12,10 @@
     },
     "email22": {
       "clientId": "CE4GY2dAUwKvQi7FlCBrq9NynP2bCUci",
-      "domain": "shelldemo.oktademo.cloud"
+      "domain": "shelldemo.oktademo.cloud",
+      "apiUrl": "http://localhost:3001/api"
     }
   },
   "apiUrl": "https://shellcipm-middleware.onrender.com/api"
+  
 }

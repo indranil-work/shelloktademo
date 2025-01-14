@@ -1,9 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import config from "../auth_config.json";
 
 const PersonalDetails = ({ user }) => {
   const [formData, setFormData] = useState({
+    given_name: user?.given_name || '',
+    family_name: user?.family_name || '',
+    email: user?.email || '',
+    phoneNumber: user?.phoneNumber || ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState({ type: '', message: '' });
+  const [initialFormData, setInitialFormData] = useState({
     given_name: user?.given_name || '',
     family_name: user?.family_name || '',
     email: user?.email || '',
@@ -16,10 +24,19 @@ const PersonalDetails = ({ user }) => {
       ...prev,
       [name]: value
     }));
+    // Clear any previous status messages
+    setStatus({ type: '', message: '' });
+  };
+
+  // Check if any changes were made
+  const hasChanges = () => {
+    return JSON.stringify(formData) !== JSON.stringify(initialFormData);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setStatus({ type: '', message: '' });
     
     try {
       const userId = user["https://auth0.com/user_id"];
@@ -42,11 +59,20 @@ const PersonalDetails = ({ user }) => {
 
       const result = await response.json();
       console.log('Personal details updated successfully', result);
-      // You might want to show a success message here
+      setStatus({
+        type: 'success',
+        message: 'Personal details updated successfully'
+      });
+      setInitialFormData(formData); // Update initial state to match current
       
     } catch (error) {
       console.error('Error updating personal details:', error);
-      // You might want to show an error message here
+      setStatus({
+        type: 'error',
+        message: 'Failed to update personal details. Please try again.'
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,6 +84,12 @@ const PersonalDetails = ({ user }) => {
       </h1>
 
       <form className="profile-form" onSubmit={handleSubmit}>
+        {status.message && (
+          <div className={`alert ${status.type === 'success' ? 'alert-success' : 'alert-danger'}`}>
+            {status.message}
+          </div>
+        )}
+
         <div className="form-row">
           <div className="form-group">
             <label>First name *</label>
@@ -66,6 +98,7 @@ const PersonalDetails = ({ user }) => {
               name="given_name"
               value={formData.given_name}
               onChange={handleInputChange}
+              disabled={loading}
             />
           </div>
           <div className="form-group">
@@ -75,20 +108,25 @@ const PersonalDetails = ({ user }) => {
               name="family_name"
               value={formData.family_name}
               onChange={handleInputChange}
+              disabled={loading}
             />
           </div>
         </div>
 
         <div className="form-group full-width">
           <label>Email address *</label>
-          <input type="email" value={user?.email || ''} readOnly />
+          <input 
+            type="email" 
+            value={user?.email || ''} 
+            readOnly 
+          />
           <a href="#" className="change-email-link">Change email</a>
         </div>
 
         <div className="form-group full-width">
           <label>Mobile phone</label>
           <div className="phone-input">
-            <select className="country-code">
+            <select className="country-code" disabled={loading}>
               <option value="US">🇺🇸 +1</option>
             </select>
             <input 
@@ -97,11 +135,18 @@ const PersonalDetails = ({ user }) => {
               placeholder="Mobile phone"
               value={formData.phoneNumber}
               onChange={handleInputChange}
+              disabled={loading}
             />
           </div>
         </div>
 
-        <button type="submit" className="save-btn">Save changes</button>
+        <button 
+          type="submit" 
+          className="save-btn"
+          disabled={loading || !hasChanges()}
+        >
+          {loading ? 'Saving...' : 'Save changes'}
+        </button>
       </form>
     </>
   );
@@ -180,17 +225,89 @@ const ChangePassword = () => {
   );
 };
 
-const Communications = () => {
+const Communications = ({ user }) => {
+
   const [preferences, setPreferences] = useState({
     shellNews: false,
     engineersClub: false
   });
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState({ type: '', message: '' });
+  const [initialPreferences, setInitialPreferences] = useState({
+    shellNews: false,
+    engineersClub: false
+  });
+
+  // Initialize preferences from user token
+  useEffect(() => {
+    
+    if (user?.communications_preference) {
+      const userPrefs = {
+        shellNews: user.communications_preference.includes('shellNews'),
+        engineersClub: user.communications_preference.includes('engineersClub')
+      };
+      console.log('Setting preferences to:', userPrefs);
+      setPreferences(userPrefs);
+      setInitialPreferences(userPrefs);
+    }
+  }, [user]);
 
   const handleCheckboxChange = (key) => {
     setPreferences(prev => ({
       ...prev,
       [key]: !prev[key]
     }));
+    // Clear any previous status messages
+    setStatus({ type: '', message: '' });
+  };
+
+  // Check if any changes were made
+  const hasChanges = () => {
+    return JSON.stringify(preferences) !== JSON.stringify(initialPreferences);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatus({ type: '', message: '' });
+    
+    try {
+      const userId = user["https://auth0.com/user_id"];
+      const selectedPreferences = Object.entries(preferences)
+        .filter(([_, isSelected]) => isSelected)
+        .map(([key, _]) => key);
+
+      const response = await fetch(`${config.apiUrl}/users/${userId}/communications`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          preferences: selectedPreferences
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update communications preferences');
+      }
+
+      const result = await response.json();
+      console.log('Communications preferences updated successfully', result);
+      setStatus({
+        type: 'success',
+        message: 'Communications preferences updated successfully'
+      });
+      setInitialPreferences(preferences); // Update initial state to match current
+      
+    } catch (error) {
+      console.error('Error updating communications preferences:', error);
+      setStatus({
+        type: 'error',
+        message: 'Failed to update communications preferences. Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -200,7 +317,13 @@ const Communications = () => {
         Communications
       </h1>
 
-      <div className="communications-form">
+      <form className="communications-form" onSubmit={handleSubmit}>
+        {status.message && (
+          <div className={`alert ${status.type === 'success' ? 'alert-success' : 'alert-danger'}`}>
+            {status.message}
+          </div>
+        )}
+
         <p className="communications-disclaimer">
           By checking a communication preference you agree to accept marketing communication from Shell
         </p>
@@ -211,6 +334,7 @@ const Communications = () => {
               type="checkbox"
               checked={preferences.shellNews}
               onChange={() => handleCheckboxChange('shellNews')}
+              disabled={loading}
             />
             <span className="checkbox-text">Shell News</span>
           </label>
@@ -220,13 +344,20 @@ const Communications = () => {
               type="checkbox"
               checked={preferences.engineersClub}
               onChange={() => handleCheckboxChange('engineersClub')}
+              disabled={loading}
             />
             <span className="checkbox-text">Shell Engineers Club</span>
           </label>
         </div>
 
-        <button type="submit" className="save-btn">Save</button>
-      </div>
+        <button 
+          type="submit" 
+          className="save-btn"
+          disabled={loading || !hasChanges()}
+        >
+          {loading ? 'Saving...' : 'Save'}
+        </button>
+      </form>
     </>
   );
 };
@@ -276,6 +407,8 @@ const Profile = () => {
   const { user, logout } = useAuth0();
   const [activeView, setActiveView] = useState('personal');
 
+  console.log('Profile Component - User:', user);
+
   const handleSignOut = () => {
     logout({ returnTo: window.location.origin });
   };
@@ -285,7 +418,7 @@ const Profile = () => {
       case 'password':
         return <ChangePassword />;
       case 'communications':
-        return <Communications />;
+        return <Communications user={user} />;
       case 'revoke':
         return <RevokeAccess />;
       case 'personal':
