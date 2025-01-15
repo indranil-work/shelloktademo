@@ -152,11 +152,101 @@ const PersonalDetails = ({ user }) => {
   );
 };
 
-const ChangePassword = () => {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+const PasswordRequirement = ({ isValid, children }) => {
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    setIsAnimating(true);
+    const timer = setTimeout(() => setIsAnimating(false), 300);
+    return () => clearTimeout(timer);
+  }, [isValid]);
+
+  return (
+    <li className={`${isValid ? 'valid' : ''} ${isAnimating ? 'checking' : ''}`}>
+      {children}
+    </li>
+  );
+};
+
+const ChangePassword = ({ user }) => {
+  const [formData, setFormData] = useState({
+    currentPassword: "",
+    newPassword: ""
+  });
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState({ type: '', message: '' });
+  const [passwordPolicy, setPasswordPolicy] = useState(null);
+
+  // Fetch password policy when component mounts
+  useEffect(() => {
+    const fetchPasswordPolicy = async () => {
+      try {
+        const response = await fetch(`${config.apiUrl}/password-policy`);
+        if (!response.ok) throw new Error('Failed to fetch password policy');
+        const data = await response.json();
+        setPasswordPolicy(data.policy);
+      } catch (error) {
+        console.error('Error fetching password policy:', error);
+      }
+    };
+
+    fetchPasswordPolicy();
+  }, []);
+
+  // Password validation based on policy
+  const validatePassword = (password) => {
+    if (!passwordPolicy) return false;
+    
+    const hasMinLength = password.length >= passwordPolicy.min_length;
+    const hasUpperCase = !passwordPolicy.requires_uppercase || /[A-Z]/.test(password);
+    const hasLowerCase = !passwordPolicy.requires_lowercase || /[a-z]/.test(password);
+    const hasNumbers = !passwordPolicy.requires_numbers || /\d/.test(password);
+    const hasSymbols = !passwordPolicy.requires_symbols || /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    return hasMinLength && hasUpperCase && hasLowerCase && hasNumbers && hasSymbols;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatus({ type: '', message: '' });
+
+    try {
+      const userId = user["https://auth0.com/user_id"];
+      const response = await fetch(`${config.apiUrl}/users/${userId}/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to change password');
+      }
+
+      setStatus({
+        type: 'success',
+        message: 'Password changed successfully'
+      });
+      setFormData({ currentPassword: "", newPassword: "" }); // Clear form
+      
+    } catch (error) {
+      console.error('Error changing password:', error);
+      setStatus({
+        type: 'error',
+        message: error.message || 'Failed to change password. Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -165,20 +255,36 @@ const ChangePassword = () => {
         Change password
       </h1>
 
-      <form className="password-form">
+      <form className="password-form" onSubmit={handleSubmit}>
+        {status.message && (
+          <div className={`alert ${status.type === 'success' ? 'alert-success' : 'alert-danger'}`}>
+            {status.message}
+          </div>
+        )}
+
         <div className="form-group">
           <label>Current password *</label>
           <div className="password-input-wrapper">
             <input
               type={showCurrentPassword ? "text" : "password"}
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
+              name="currentPassword"
+              value={formData.currentPassword}
+              onChange={(e) => {
+                setFormData(prev => ({
+                  ...prev,
+                  currentPassword: e.target.value
+                }));
+                setStatus({ type: '', message: '' });
+              }}
               placeholder="Current password"
+              disabled={loading}
+              required
             />
             <button
               type="button"
               className="toggle-password"
               onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+              disabled={loading}
             >
               👁️
             </button>
@@ -190,36 +296,86 @@ const ChangePassword = () => {
           <div className="password-input-wrapper">
             <input
               type={showNewPassword ? "text" : "password"}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              name="newPassword"
+              value={formData.newPassword}
+              onChange={(e) => {
+                setFormData(prev => ({
+                  ...prev,
+                  newPassword: e.target.value
+                }));
+                setStatus({ type: '', message: '' });
+              }}
               placeholder="New password"
+              disabled={loading}
+              required
+              minLength={8}
+              pattern="(?=.*\d)(?=.*[A-Z]).{8,}"
+              title="Must contain at least 8 characters, one number and one uppercase letter"
             />
             <button
               type="button"
               className="toggle-password"
               onClick={() => setShowNewPassword(!showNewPassword)}
+              disabled={loading}
             >
               👁️
             </button>
           </div>
           <div className="password-requirements">
-            Your password must be at least:
+            Your password must have:
             <ul>
-              <li>8 characters</li>
-              <li>1 uppercase</li>
-              <li>1 number</li>
+              {passwordPolicy && (
+                <>
+                  <PasswordRequirement 
+                    isValid={formData.newPassword.length >= passwordPolicy.min_length}
+                  >
+                    At least {passwordPolicy.min_length} characters
+                  </PasswordRequirement>
+
+                  {passwordPolicy.requires_uppercase && (
+                    <PasswordRequirement 
+                      isValid={/[A-Z]/.test(formData.newPassword)}
+                    >
+                      At least 1 uppercase letter
+                    </PasswordRequirement>
+                  )}
+
+                  {passwordPolicy.requires_lowercase && (
+                    <PasswordRequirement 
+                      isValid={/[a-z]/.test(formData.newPassword)}
+                    >
+                      At least 1 lowercase letter
+                    </PasswordRequirement>
+                  )}
+
+                  {passwordPolicy.requires_numbers && (
+                    <PasswordRequirement 
+                      isValid={/\d/.test(formData.newPassword)}
+                    >
+                      At least 1 number
+                    </PasswordRequirement>
+                  )}
+
+                  {passwordPolicy.requires_symbols && (
+                    <PasswordRequirement 
+                      isValid={/[!@#$%^&*(),.?":{}|<>]/.test(formData.newPassword)}
+                    >
+                      At least 1 special character
+                    </PasswordRequirement>
+                  )}
+                </>
+              )}
             </ul>
           </div>
         </div>
 
-        <div className="password-strength">
-          <label>Password Strength</label>
-          <div className="strength-meter">
-            <div className="strength-bar"></div>
-          </div>
-        </div>
-
-        <button type="submit" className="save-btn">Save</button>
+        <button 
+          type="submit" 
+          className="save-btn"
+          disabled={loading || !formData.currentPassword || !validatePassword(formData.newPassword)}
+        >
+          {loading ? 'Changing password...' : 'Change password'}
+        </button>
       </form>
     </>
   );
@@ -416,7 +572,7 @@ const Profile = () => {
   const renderContent = () => {
     switch (activeView) {
       case 'password':
-        return <ChangePassword />;
+        return <ChangePassword user={user} />;
       case 'communications':
         return <Communications user={user} />;
       case 'revoke':
