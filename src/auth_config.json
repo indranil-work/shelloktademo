@@ -18,6 +18,14 @@
     "sniper_link": {
       "clientId": "Xp0v4LI2HebrEWV9gV5WylyRkejP3joP",
       "domain": "shelldemo.oktademo.cloud"
+    },
+    "mfa_optional": {
+      "clientId": "5YNCvkd2lbFy3d0nrCcTuvaAiXaxfth1",
+      "domain": "shelldemo.oktademo.cloud"
+    },
+    "mfa_mandatory": {
+      "clientId": "g2LYYGxKwhQcnOqxQ0ylkSPryus7uGYD",
+      "domain": "shelldemo.oktademo.cloud"
     }
   },
   "apiUrl": "https://shellcipm-middleware.onrender.com/api"

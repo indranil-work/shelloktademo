@@ -76,6 +76,8 @@ const Home = () => {
           >
             <option value="email1">Email/Password with Self-registration (U)</option>
             <option value="email22">Email/Password with Self-registration</option>
+            <option value="mfa_optional">Email/Password Self-registration - MFA optional</option>
+            <option value="mfa_mandatory">Email/Password Self-registration - MFA mandatory</option>
             <option value="sniper_link">Email/Password Self-registration - sniper link verification</option>
           </select>
         </div>
