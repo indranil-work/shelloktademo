@@ -1,5 +1,5 @@
 import React from "react";
-import { useHistory, useSearchParams } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import waveImage from '../assets/background-bottom.png';
 import decorativeImage from '../assets/background-right.png';
 import { useAuth0 } from "@auth0/auth0-react";
@@ -9,10 +9,11 @@ const Home = () => {
   const { selectedJourney, setSelectedJourney, selectedLocale, getClientConfig } = useUser();
   const { loginWithRedirect, isAuthenticated, user } = useAuth0();
   const history = useHistory();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { search } = useLocation();
+  const parsedSearch = URLSearchParams(search);
 
-  if(searchParams.get('error')){
-    alert(`Oops... ${searchParams.get('error_description')} - redirecting back to login`);
+  if(parsedSearch.has('error')){
+    alert(`Oops... ${parsedSearch.get('error_description')} - redirecting back to login`);
     history.push(`/login?journey=${selectedJourney}`);
   }
 

@@ -1,14 +1,15 @@
 import React from "react";
-import { useSearchParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useUser } from '../context/UserContext';
 
 const Login = () => {
   const { selectedJourney, setSelectedJourney, selectedLocale } = useUser();
   const { loginWithRedirect } = useAuth0();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { search } = useLocation()
+  const parsedSearch = URLSearchParams(search);
 
-  setSelectedJourney(searchParams.get('journey'));
+  setSelectedJourney(parsedSearch.get('journey'));
 
   if (!selectedJourney) {
     return("Please select a journey first");
@@ -19,6 +20,8 @@ const Login = () => {
       ui_locales: selectedLocale
     }
   });
+
+  return('Redirecting...');
   
 };
 
