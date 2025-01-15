@@ -10,7 +10,7 @@ const Home = () => {
   const { loginWithRedirect, isAuthenticated, user } = useAuth0();
   const history = useHistory();
   const { search } = useLocation();
-  const parsedSearch = URLSearchParams(search);
+  const parsedSearch = new URLSearchParams(search);
 
   if(parsedSearch.has('error')){
     alert(`Oops... ${parsedSearch.get('error_description')} - redirecting back to login`);

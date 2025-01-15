@@ -7,7 +7,7 @@ const Login = () => {
   const { selectedJourney, setSelectedJourney, selectedLocale } = useUser();
   const { loginWithRedirect } = useAuth0();
   const { search } = useLocation()
-  const parsedSearch = URLSearchParams(search);
+  const parsedSearch = new URLSearchParams(search);
 
   setSelectedJourney(parsedSearch.get('journey'));
 
