@@ -26,6 +26,14 @@
     "mfa_mandatory": {
       "clientId": "g2LYYGxKwhQcnOqxQ0ylkSPryus7uGYD",
       "domain": "shelldemo.oktademo.cloud"
+    },
+    "sms_otp": {
+      "clientId": "JXMBGR7zly8SloB16U7hsHOCBTTyBW0T",
+      "domain": "shelldemo.oktademo.cloud"
+    },
+    "phone_password": {
+      "clientId": "vl8qfNKq3vIllCQ0Wdjlcy52jgQ0viFM",
+      "domain": "shelldemo.oktademo.cloud"
     }
   },
   "apiUrl": "https://shellcipm-middleware.onrender.com/api"
