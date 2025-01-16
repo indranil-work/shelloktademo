@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import config from "../auth_config.json";
 
-const PersonalDetails = ({ user }) => {
+const PersonalDetails = ({ user, setActiveView }) => {
   const [formData, setFormData] = useState({
     given_name: user?.given_name || '',
     family_name: user?.family_name || '',
@@ -120,7 +120,16 @@ const PersonalDetails = ({ user }) => {
             value={user?.email || ''} 
             readOnly 
           />
-          <a href="#" className="change-email-link">Change email</a>
+          <a 
+            href="#" 
+            className="change-email-link"
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveView('email');
+            }}
+          >
+            Change email
+          </a>
         </div>
 
         <div className="form-group full-width">
@@ -559,6 +568,219 @@ const RevokeAccess = () => {
   );
 };
 
+const ChangeEmail = ({ user }) => {
+  const [step, setStep] = useState('password'); // steps: password, email, success
+  const [formData, setFormData] = useState({
+    password: '',
+    newEmail: ''
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState({ type: '', message: '' });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const validatePassword = async () => {
+    try {
+      setLoading(true);
+      const userId = user["https://auth0.com/user_id"];
+      
+      const response = await fetch(`${config.apiUrl}/users/${userId}/verify-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Invalid password. Please try again.');
+        }
+        throw new Error(data.error || 'Failed to verify password');
+      }
+
+      // Password verified successfully, move to next step
+      setStep('email');
+      setStatus({ type: '', message: '' });
+    } catch (error) {
+      setStatus({ 
+        type: 'error', 
+        message: error.message 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const requestEmailChange = async () => {
+    try {
+      setLoading(true);
+      const userId = user["https://auth0.com/user_id"];
+      const response = await fetch(`${config.apiUrl}/users/${userId}/change-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          newEmail: formData.newEmail,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to change email');
+      }
+
+      setStep('success');
+      setStatus({ 
+        type: 'success', 
+        message: 'Please check your email to complete the change.' 
+      });
+    } catch (error) {
+      setStatus({ 
+        type: 'error', 
+        message: error.message 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendEmailLink = async () => {
+    try {
+      setLoading(true);
+      const userId = user["https://auth0.com/user_id"];
+      const response = await fetch(`${config.apiUrl}/users/${userId}/resend-email-verification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.newEmail
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to resend verification email');
+      }
+
+      setStatus({ 
+        type: 'success', 
+        message: 'New verification email sent! Please check your inbox.' 
+      });
+    } catch (error) {
+      setStatus({ 
+        type: 'error', 
+        message: 'Failed to resend verification email. Please try again.' 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form className="email-form" onSubmit={(e) => e.preventDefault()}>
+      {step === 'password' && (
+        <div className="form-group">
+          <h1>
+            <span className="icon">✓</span>
+            Password validation
+          </h1>
+          <p>Before proceeding, please enter your current password</p>
+          <div className="password-input">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              placeholder="Enter your password"
+              required
+            />
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? '👁️' : '👁️‍🗨️'}
+            </button>
+          </div>
+          <button 
+            className="continue-btn"
+            onClick={validatePassword}
+            disabled={loading || !formData.password}
+          >
+            {loading ? 'Validating...' : 'Continue'}
+          </button>
+        </div>
+      )}
+
+      {step === 'email' && (
+        <div className="form-group">
+          <h1>
+            <span className="icon">✉️</span>
+            Change email
+          </h1>
+          <p>When you change your email address please check your email for a message with a verification link to confirm the change.</p>
+          <input
+            type="email"
+            name="newEmail"
+            value={formData.newEmail}
+            onChange={handleInputChange}
+            placeholder="Enter your new email address"
+            required
+          />
+          <button 
+            className="continue-btn"
+            onClick={requestEmailChange}
+            disabled={loading || !formData.newEmail}
+          >
+            {loading ? 'Sending...' : 'Next'}
+          </button>
+        </div>
+      )}
+
+      {step === 'success' && (
+        <div className="form-group">
+          <h1>
+            <span className="icon">✉️</span>
+            Verify your email
+          </h1>
+          <div className="alert alert-success">
+            <p>Please check your email to complete the change.</p>
+            <button 
+              type="button"
+              className="resend-btn"
+              onClick={resendEmailLink}
+              disabled={loading}
+            >
+              Resend verification email
+            </button>
+          </div>
+        </div>
+      )}
+
+      {status.type === 'error' && (
+        <div className="alert alert-danger">
+          {status.message}
+        </div>
+      )}
+    </form>
+  );
+};
+
 const Profile = () => {
   const { user, logout } = useAuth0();
   const [activeView, setActiveView] = useState('personal');
@@ -575,11 +797,13 @@ const Profile = () => {
         return <ChangePassword user={user} />;
       case 'communications':
         return <Communications user={user} />;
+      case 'email':
+        return <ChangeEmail user={user} />;
       case 'revoke':
         return <RevokeAccess />;
       case 'personal':
       default:
-        return <PersonalDetails user={user} />;
+        return <PersonalDetails user={user} setActiveView={setActiveView} />;
     }
   };
 
@@ -608,7 +832,10 @@ const Profile = () => {
                 <span className="icon">📱</span>
                 2-step verification
               </li>
-              <li>
+              <li
+                className={activeView === 'email' ? 'active' : ''}
+                onClick={() => setActiveView('email')}
+              >
                 <span className="icon">✉️</span>
                 Change email
               </li>
