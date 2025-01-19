@@ -2,6 +2,7 @@
   "domain": "shellcipm-proxy.onrender.com",
   "clientId": "FeVF2xXNARNb0W1GGgQ2y7I4ZeBIWzdb",
   "audience": "https://demo.okta.com",
+  "auth0Domain": "shelldemo.cic-demo-platform.auth0app.com",
   "auth0": {
     "issuerBaseURL": "https://shelldemo.oktademo.cloud/"
   },
@@ -37,5 +38,5 @@
     }
   },
   "apiUrl": "https://shellcipm-middleware.onrender.com/api"
-  
 }
+

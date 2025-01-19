@@ -781,6 +781,411 @@ const ChangeEmail = ({ user }) => {
   );
 };
 
+const SetupAuthenticator = ({ user }) => {
+  const { logout } = useAuth0();
+  const [step, setStep] = useState('password');
+  const [formData, setFormData] = useState({
+    password: '',
+    verificationCode: ''
+  });
+  const [mfaData, setMfaData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [mfaToken, setMfaToken] = useState(null);
+  const [hasAuthenticator, setHasAuthenticator] = useState(false);
+
+  // Update function name and endpoint
+  const getMfaEnrollmentData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${config.apiUrl}/users/${user["https://auth0.com/user_id"]}/start-mfa-enrollment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${mfaToken}`
+        }
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to get MFA enrollment data');
+
+      setMfaData(data);
+      setStep('qr-code');
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkAuthenticatorStatus = async () => {
+    try {
+      const response = await fetch(`${config.apiUrl}/users/${user["https://auth0.com/user_id"]}/authenticator-status`);
+      const data = await response.json();
+      setHasAuthenticator(data.hasAuthenticator);
+    } catch (err) {
+      console.error('Error checking authenticator status:', err);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${config.apiUrl}/users/${user["https://auth0.com/user_id"]}/verify-mfa-enrollment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${mfaToken}`
+        },
+        body: JSON.stringify({
+          verificationCode: formData.verificationCode
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to verify code');
+
+      setStep('setup-complete');
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    checkAuthenticatorStatus();
+  }, []);
+
+  const renderContent = () => {
+    switch (step) {
+      case 'password':
+        return (
+          <div className="authenticator-step">
+            <h3>✓ Password validation</h3>
+            <p className="step-description">Before proceeding, please enter your current password:</p>
+            <div className="password-input-wrapper">
+              <input
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="Enter your password"
+                className="auth-input"
+              />
+            </div>
+            <button 
+              onClick={handlePasswordValidation}
+              disabled={loading}
+              className="auth-button"
+            >
+              {loading ? 'Validating...' : 'Continue'}
+            </button>
+          </div>
+        );
+
+      case 'setup-button':
+        return (
+          <div className="authenticator-step">
+            <h3>⚙️ Authenticator app setup</h3>
+            <button 
+              onClick={getMfaEnrollmentData}
+              className="setup-auth-button"
+            >
+              Setup an Authenticator App
+            </button>
+          </div>
+        );
+
+      case 'qr-code':
+        return (
+          <div className="authenticator-step">
+            <h3>⚙️ Authenticator app setup</h3>
+            <div className="qr-section">
+              {mfaData && (
+                <>
+                  <img src={mfaData.barcode_uri} alt="QR Code" className="qr-code" />
+                  <div className="secret-key">
+                    <p>Secret Key: <span>{mfaData.secret}</span></p>
+                  </div>
+                </>
+              )}
+              <p className="setup-instructions">
+                Scan the QR code or enter the Secret Key. Once the account is created, enter the PIN code generated in the Authenticator App and click on "Finish setup".
+              </p>
+              <div className="verification-input">
+                <input
+                  type="text"
+                  value={formData.verificationCode}
+                  onChange={(e) => setFormData({ ...formData, verificationCode: e.target.value })}
+                  placeholder="Enter verification code"
+                  className="auth-input"
+                />
+                <button 
+                  onClick={handleVerifyCode}
+                  disabled={loading}
+                  className="auth-button"
+                >
+                  Finish setup
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'setup-complete':
+        return (
+          <div className="authenticator-step">
+            <h3>⚙️ Authenticator app setup completed</h3>
+            <div className="completion-message">
+              <p>Congratulations! You have completed your Authenticator app setup.</p>
+              <p className="note">Note: For subsequent logins, user will need to enter the OTP generated in the Authenticator App.</p>
+            </div>
+          </div>
+        );
+
+      case 'confirm-deactivate':
+        return (
+          <div className="authenticator-step">
+            <h3>🚫 Remove Authenticator App Integration</h3>
+            <p className="confirmation-message">Are you sure you want to remove the Authenticator app integration?</p>
+            <div className="button-group">
+              <button 
+                onClick={handleDeactivateConfirm}
+                disabled={loading}
+                className="confirm-btn"
+              >
+                Yes
+              </button>
+              <button 
+                onClick={() => setStep('password')}
+                disabled={loading}
+                className="cancel-btn"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const handlePasswordValidation = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${config.apiUrl}/users/${user["https://auth0.com/user_id"]}/verify-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Password validation failed');
+
+      setMfaToken(data.mfa_token);
+      // After password validation, go to appropriate next step
+      if (hasAuthenticator) {
+        setStep('confirm-deactivate');
+      } else {
+        setStep('setup-button');
+      }
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeactivateConfirm = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${config.apiUrl}/users/${user["https://auth0.com/user_id"]}/deactivate-mfa`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to deactivate authenticator');
+
+      // Use Auth0's logout function instead of redirecting to /logout
+      logout({ returnTo: window.location.origin });
+      
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="setup-authenticator">
+      {renderContent()}
+      {error && <div className="error">{error}</div>}
+    </div>
+  );
+};
+
+const TwoStepVerification = ({ user }) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [step, setStep] = useState('initial');
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+
+  // Check if two-step verification is enabled from user claim
+  useEffect(() => {
+    const twoStepEnabled = user?.['https://shell.com/two-step-enabled'] === true;
+    setIsEnabled(twoStepEnabled);
+  }, [user]);
+
+  const handleToggle = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${config.apiUrl}/auth0/passwordless/start`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: user.email,
+          send: 'code',
+          client_id: user['https://shell.com/appid'],
+          user_id: user['https://auth0.com/user_id']
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to start verification');
+
+      setStep('verify');
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${config.apiUrl}/auth0/passwordless/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: user.email,
+          code: verificationCode,
+          client_id: user['https://shell.com/appid'],
+          user_id: user['https://auth0.com/user_id']
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to verify code');
+
+      setIsEnabled(true);
+      setStep('success');
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderContent = () => {
+    switch (step) {
+      case 'initial':
+        return (
+          <div className="authenticator-step">
+            <h3>🔐 2-step verification</h3>
+            <p className="step-description">
+              This workflow is linked to the primary method of authentication. For example, if mobile number is used as 
+              the authentication method, then verification code will be sent to the mobile device; if email address is 
+              used as the authentication method, then verification code will be sent to the email address.
+            </p>
+            <div className="toggle-section">
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={isEnabled}
+                  onChange={handleToggle}
+                  disabled={loading}
+                />
+                <span className="slider round"></span>
+              </label>
+              <span className="toggle-label">
+                {isEnabled ? 'Disable' : 'Enable'} 2-step verification
+              </span>
+            </div>
+          </div>
+        );
+
+      case 'verify':
+        return (
+          <div className="authenticator-step">
+            <h3>🔐 2-step verification</h3>
+            <div className="verification-input">
+              <input
+                type="text"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                placeholder="Enter the verification code"
+                className="auth-input"
+              />
+              <button 
+                onClick={handleVerifyCode}
+                disabled={loading}
+                className="auth-button"
+              >
+                {loading ? 'Verifying...' : 'Verify'}
+              </button>
+            </div>
+          </div>
+        );
+
+      case 'success':
+        return (
+          <div className="authenticator-step">
+            <h3>🔐 2-step verification updated</h3>
+            <p className="success-message">
+              2-step verification has been {isEnabled ? 'enabled' : 'disabled'} successfully.
+            </p>
+            <button 
+              onClick={() => setStep('initial')}
+              className="auth-button"
+            >
+              Back to settings
+            </button>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="two-step-verification">
+      {renderContent()}
+      {error && <div className="error">{error}</div>}
+    </div>
+  );
+};
+
 const Profile = () => {
   const { user, logout } = useAuth0();
   const [activeView, setActiveView] = useState('personal');
@@ -799,8 +1204,12 @@ const Profile = () => {
         return <Communications user={user} />;
       case 'email':
         return <ChangeEmail user={user} />;
+      case 'authenticator':
+        return <SetupAuthenticator user={user} />;
       case 'revoke':
         return <RevokeAccess />;
+      case '2step':
+        return <TwoStepVerification user={user} />;
       case 'personal':
       default:
         return <PersonalDetails user={user} setActiveView={setActiveView} />;
@@ -828,9 +1237,19 @@ const Profile = () => {
                 <span className="icon">🔑</span>
                 Change password
               </li>
-              <li>
+              <li 
+                onClick={() => user?.['https://shell.com/app_metadata/two-step-mfa'] === 'optional' ? setActiveView('2step') : null}
+                className={`${activeView === '2step' ? 'active' : ''} ${user?.['https://shell.com/app_metadata/two-step-mfa'] !== 'optional' ? 'disabled' : ''}`}
+              >
                 <span className="icon">📱</span>
                 2-step verification
+              </li>
+              <li
+                className={activeView === 'authenticator' ? 'active' : ''}
+                onClick={() => setActiveView('authenticator')}
+              >
+                <span className="icon">🔐</span>
+                Setup Authenticator App
               </li>
               <li
                 className={activeView === 'email' ? 'active' : ''}
