@@ -1239,3 +1239,54 @@ input:checked + .slider:before {
   cursor: not-allowed;
   pointer-events: none;
 }
+
+.revoke-access {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.confirmation-dialog {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.dialog-content {
+  background: white;
+  padding: 20px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.auth-button.danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.auth-button.danger:hover {
+  background-color: #c82333;
+}
+
+.auth-button.secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.auth-button.secondary:hover {
+  background-color: #5a6268;
+}
+
+.description {
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}

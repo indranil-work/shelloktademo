@@ -527,44 +527,85 @@ const Communications = ({ user }) => {
   );
 };
 
-const RevokeAccess = () => {
-  const [showConfirmation, setShowConfirmation] = useState(false);
+const RevokeAccess = ({ user }) => {
   const { logout } = useAuth0();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const handleRevoke = () => {
-    // Here you would typically call your API to revoke access
-    // For now, we'll just log out the user
-    logout({ returnTo: window.location.origin });
+  const handleRevokeAccess = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${config.apiUrl}/auth0/revoke-access`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: user['https://auth0.com/user_id'],
+          client_id: user['https://shell.com/appid']
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to revoke access');
+
+      // Use Auth0's logout
+      logout({ 
+        logoutParams: {
+          returnTo: window.location.origin 
+        }
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <>
-      <h1>
-        <span className="icon">🚫</span>
-        Revoke Access
-      </h1>
+    <div className="revoke-access">
+      <h3>🔒 Revoke Access</h3>
+      <p className="description">
+        If a user is active in multiple applications their account is not completely deleted from the CIPM database. 
+        Instead, it is revoked from only the requested application and the user can continue to use other applications.
+      </p>
 
-      <div className="revoke-access-form">
-        <p className="revoke-description">
-          Remove access and delete your account for this application.
-        </p>
-
-        <div className="button-group">
-          <button 
-            className="cancel-btn"
-            onClick={() => setShowConfirmation(false)}
-          >
-            Cancel
-          </button>
-          <button 
-            className="revoke-btn"
-            onClick={handleRevoke}
-          >
-            Revoke access
-          </button>
+      {!showConfirmation ? (
+        <button 
+          onClick={() => setShowConfirmation(true)} 
+          className="auth-button danger"
+          disabled={loading}
+        >
+          Revoke access
+        </button>
+      ) : (
+        <div className="confirmation-dialog">
+          <div className="dialog-content">
+            <h4>Are you sure?</h4>
+            <p>This service will be removed, and all related information will be deleted permanently and cannot be undone.</p>
+            <div className="dialog-buttons">
+              <button 
+                onClick={() => setShowConfirmation(false)} 
+                className="auth-button secondary"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleRevokeAccess} 
+                className="auth-button danger"
+                disabled={loading}
+              >
+                {loading ? 'Revoking...' : 'Yes, revoke'}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </>
+      )}
+
+      {error && <div className="error">{error}</div>}
+    </div>
   );
 };
 
@@ -1207,7 +1248,7 @@ const Profile = () => {
       case 'authenticator':
         return <SetupAuthenticator user={user} />;
       case 'revoke':
-        return <RevokeAccess />;
+        return <RevokeAccess user={user} />;
       case '2step':
         return <TwoStepVerification user={user} />;
       case 'personal':
