@@ -11,15 +11,119 @@ const Home = () => {
   const history = useHistory();
   const { search, hash } = useLocation();
   const parsedSearch = new URLSearchParams(search);
+  const CACHE_KEY_PREFIX = '@@auth0spajs@@';
+
+  const decodeB64 = (input) => {
+    return decodeURIComponent(
+      atob(input)
+        .split('')
+        .map(c => {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join('')
+    );
+  }
+  const urlDecodeB64 = (input) => {
+    return decodeB64(input.replace(/_/g, '/').replace(/-/g, '+'));
+  }
+    
+
+  const idTokendecoded = [
+    'iss',
+    'aud',
+    'exp',
+    'nbf',
+    'iat',
+    'jti',
+    'azp',
+    'nonce',
+    'auth_time',
+    'at_hash',
+    'c_hash',
+    'acr',
+    'amr',
+    'sub_jwk',
+    'cnf',
+    'sip_from_tag',
+    'sip_date',
+    'sip_callid',
+    'sip_cseq_num',
+    'sip_via_branch',
+    'orig',
+    'dest',
+    'mky',
+    'events',
+    'toe',
+    'txn',
+    'rph',
+    'sid',
+    'vot',
+    'vtm'
+  ];
+
+  const decodeToken = (token) => {
+    const parts = token.split('.');
+    const [header, payload, signature] = parts;
+  
+    if (parts.length !== 3 || !header || !payload || !signature) {
+      throw new Error('ID token could not be decoded');
+    }
+    const payloadJSON = JSON.parse(urlDecodeB64(payload));
+    const claims = { __raw: token };
+    const user = {};
+    Object.keys(payloadJSON).forEach(k => {
+      claims[k] = payloadJSON[k];
+      if (!idTokendecoded.includes(k)) {
+        user[k] = payloadJSON[k];
+      }
+    });
+    return {
+      encoded: { header, payload, signature },
+      header: JSON.parse(urlDecodeB64(header)),
+      claims,
+      user
+    };
+  };
+
+  const createCacheKey = (client_id, audience, scope) => {
+    return `${CACHE_KEY_PREFIX}::${client_id}::${audience}::${scope}`;
+  }
+
+  const createCacheEntry = (idToken, accessToken, expiresIn, audience, scope, clientId, refreshToken) => {
+    const decodedToken = decodeToken(idToken);
+
+    const now = Date.now();
+    const expiresInTime = Math.floor(now / 1000) + expiresIn;
+
+    const expirySeconds = Math.min(
+      expiresInTime,
+      decodedToken.claims.exp
+    );
+
+    return {
+      body: {
+        id_token: idToken,
+        access_token: accessToken,
+        expires_in: expiresIn,
+        decodedToken: decodedToken,
+        audience: audience,
+        scope: scope,
+        client_id: clientId,
+        refresh_token: refreshToken
+      },
+      expiresAt: expirySeconds
+    }
+  }
 
   useEffect(() => {
     async function loginWithMagicLink() {
       let clientId = 'idM0BINRTdeMuUKsTw00U5vRmojFRGcP';
-      let cacheKey = createCacheKey(clientId, (resJson.audience ? resJson.audience : `https://${resJson.domain}/api/v2/`), resJson.userData.scope);
-      let cacheEntry = createCacheEntry(resJson.userData.id_token, resJson.userData.access_token, resJson.userData.expires_in, (resJson.audience ? resJson.audience : `https://${resJson.domain}/api/v2/`), resJson.userData.scope, clientId);
-      localStorage.setItem(cacheKey, JSON.stringify(cacheEntry));
+      //let cacheKey = createCacheKey(clientId, (resJson.audience ? resJson.audience : `https://${resJson.domain}/api/v2/`), resJson.userData.scope);
+      //let cacheEntry = createCacheEntry(resJson.userData.id_token, resJson.userData.access_token, resJson.userData.expires_in, (resJson.audience ? resJson.audience : `https://${resJson.domain}/api/v2/`), resJson.userData.scope, clientId);
+      //localStorage.setItem(cacheKey, JSON.stringify(cacheEntry));
       //auth0.7mRIJ6CjBrcuWr9HMsIBIhSiyE3B3liT.is.authenticated
-      Cookies.set(`auth0.${clientId}.is.authenticated`, true);
+      //Cookies.set(`auth0.${clientId}.is.authenticated`, true);
+      document.cookie = `auth0.${clientId}.is.authenticated=true`;
       history.push('/');
     }
 
