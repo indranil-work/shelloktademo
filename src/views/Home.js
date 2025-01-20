@@ -116,7 +116,7 @@ const Home = () => {
   }
 
   useEffect(() => {
-    async function loginWithMagicLink() {
+    async function loginWithMagicLink(parsedHash) {
       let clientId = 'idM0BINRTdeMuUKsTw00U5vRmojFRGcP';
       //let cacheKey = createCacheKey(clientId, (resJson.audience ? resJson.audience : `https://${resJson.domain}/api/v2/`), resJson.userData.scope);
       //let cacheEntry = createCacheEntry(resJson.userData.id_token, resJson.userData.access_token, resJson.userData.expires_in, (resJson.audience ? resJson.audience : `https://${resJson.domain}/api/v2/`), resJson.userData.scope, clientId);
@@ -128,7 +128,8 @@ const Home = () => {
     }
 
     if(hash){
-      console.log(hash);
+      let parsedHash = new URLSearchParams(hash);
+      console.log(parsedHash);
       //loginWithMagicLink();
     }
   }, [hash]);
