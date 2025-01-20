@@ -118,19 +118,18 @@ const Home = () => {
   useEffect(() => {
     async function loginWithMagicLink(parsedHash) {
       let clientId = 'idM0BINRTdeMuUKsTw00U5vRmojFRGcP';
-      //let cacheKey = createCacheKey(clientId, (resJson.audience ? resJson.audience : `https://${resJson.domain}/api/v2/`), resJson.userData.scope);
-      //let cacheEntry = createCacheEntry(resJson.userData.id_token, resJson.userData.access_token, resJson.userData.expires_in, (resJson.audience ? resJson.audience : `https://${resJson.domain}/api/v2/`), resJson.userData.scope, clientId);
-      //localStorage.setItem(cacheKey, JSON.stringify(cacheEntry));
-      //auth0.7mRIJ6CjBrcuWr9HMsIBIhSiyE3B3liT.is.authenticated
+      let audience = 'https://demo.okta.com';
+      let cacheKey = createCacheKey(clientId, audience, parsedHash.get('scope'));
+      let cacheEntry = createCacheEntry(parsedHash.get('id_token'), parsedHash.get('access_token'), parsedHash.get('expires_in'), audience, parsedHash.get('scope'), clientId);
+      localStorage.setItem(cacheKey, JSON.stringify(cacheEntry));
       //Cookies.set(`auth0.${clientId}.is.authenticated`, true);
       document.cookie = `auth0.${clientId}.is.authenticated=true`;
       history.push('/');
     }
 
     if(hash){
-      let parsedHash = new URLSearchParams(hash);
-      console.log(parsedHash);
-      //loginWithMagicLink();
+      let parsedHash = new URLSearchParams(hash.replace('#',''));
+      loginWithMagicLink(parsedHash);
     }
   }, [hash]);
 
