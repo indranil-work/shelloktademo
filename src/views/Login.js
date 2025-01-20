@@ -14,12 +14,24 @@ const Login = () => {
   if (!selectedJourney) {
     return("Please select a journey first");
   }
-  
-  loginWithRedirect({
-    authorizationParams: {
-      ui_locales: selectedLocale
-    }
-  });
+
+  const url = window.location.href;
+  const inviteMatches = url.match(/invitation=([^&]+)/);
+  const orgMatches = url.match(/organization=([^&]+)/);
+  if (inviteMatches && orgMatches) {
+    loginWithRedirect({
+      authorizationParams: {
+        organization: orgMatches[1],
+        invitation: inviteMatches[1],
+      }
+    });
+  }else{
+    loginWithRedirect({
+      authorizationParams: {
+        ui_locales: selectedLocale
+      }
+    });
+  }
 
   return('Redirecting...');
   
