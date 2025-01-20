@@ -880,7 +880,8 @@ const SetupAuthenticator = ({ user }) => {
           'Authorization': `Bearer ${mfaToken}`
         },
         body: JSON.stringify({
-          verificationCode: formData.verificationCode
+          verificationCode: formData.verificationCode,
+          client_id: user['https://shell.com/appid']
         })
       });
 
@@ -1053,7 +1054,10 @@ const SetupAuthenticator = ({ user }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          client_id: user['https://shell.com/appid']
+        })
       });
 
       const data = await response.json();
