@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import waveImage from '../assets/background-bottom.png';
 import decorativeImage from '../assets/background-right.png';
@@ -9,8 +9,25 @@ const Home = () => {
   const { selectedJourney, setSelectedJourney, selectedLocale, getClientConfig } = useUser();
   const { loginWithRedirect, isAuthenticated, user } = useAuth0();
   const history = useHistory();
-  const { search } = useLocation();
+  const { search, hash } = useLocation();
   const parsedSearch = new URLSearchParams(search);
+
+  useEffect(() => {
+    async function loginWithMagicLink() {
+      let clientId = 'idM0BINRTdeMuUKsTw00U5vRmojFRGcP';
+      let cacheKey = createCacheKey(clientId, (resJson.audience ? resJson.audience : `https://${resJson.domain}/api/v2/`), resJson.userData.scope);
+      let cacheEntry = createCacheEntry(resJson.userData.id_token, resJson.userData.access_token, resJson.userData.expires_in, (resJson.audience ? resJson.audience : `https://${resJson.domain}/api/v2/`), resJson.userData.scope, clientId);
+      localStorage.setItem(cacheKey, JSON.stringify(cacheEntry));
+      //auth0.7mRIJ6CjBrcuWr9HMsIBIhSiyE3B3liT.is.authenticated
+      Cookies.set(`auth0.${clientId}.is.authenticated`, true);
+      history.push('/');
+    }
+
+    if(hash){
+      console.log(hash);
+      //loginWithMagicLink();
+    }
+  }, [hash]);
 
   if(parsedSearch.has('error')){
     alert(`Oops... ${parsedSearch.get('error_description')} - redirecting back to login`);

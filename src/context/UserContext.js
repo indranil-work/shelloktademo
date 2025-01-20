@@ -54,6 +54,13 @@ export const UserProvider = ({ children }) => {
       };
     }
 
+    if(currentConfig.authorizationParams){
+      return {
+        ...baseParams,
+        ...currentConfig.authorizationParams
+      };
+    }
+
     return baseParams;
   };
 
