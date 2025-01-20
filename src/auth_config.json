@@ -35,6 +35,13 @@
     "phone_password": {
       "clientId": "vl8qfNKq3vIllCQ0Wdjlcy52jgQ0viFM",
       "domain": "shelldemo.oktademo.cloud"
+    },
+    "invite": {
+      "clientId": "idM0BINRTdeMuUKsTw00U5vRmojFRGcP",
+      "domain": "shelldemo.oktademo.cloud",
+      "authorizationParams": {
+        "organization": "org_RFN4BI4eiF1RwGjW"
+      }
     }
   },
   "apiUrl": "https://shellcipm-middleware.onrender.com/api"
