@@ -9,6 +9,7 @@ import Home from "./views/Home";
 import Profile from "./views/Profile";
 import Login from "./views/Login";
 import ExternalApi from "./views/ExternalApi";
+import LogoutSuccess from './views/LogoutSuccess';
 import { useAuth0 } from "@auth0/auth0-react";
 import history from "./utils/history";
 import { UserProvider } from './context/UserContext';
@@ -42,6 +43,7 @@ const App = () => {
             <Route path="/profile" component={Profile} />
             <Route path="/external-api" component={ExternalApi} />
             <Route path="/login" component={Login} />
+            <Route exact path="/logout-success" component={LogoutSuccess} />
           </Switch>
         </Container>
           <Footer />

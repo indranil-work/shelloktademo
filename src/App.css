@@ -1290,3 +1290,36 @@ input:checked + .slider:before {
   margin-bottom: 20px;
   line-height: 1.5;
 }
+
+/* Logout Success Styles */
+.logout-success {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.success-content {
+  text-align: center;
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.success-icon {
+  font-size: 48px;
+  color: #4CAF50;
+  margin-bottom: 20px;
+}
+
+.success-content h2 {
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.success-content p {
+  color: #666;
+  margin-bottom: 24px;
+}

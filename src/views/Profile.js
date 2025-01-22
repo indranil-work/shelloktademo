@@ -1241,6 +1241,36 @@ const Profile = () => {
     logout({ returnTo: window.location.origin });
   };
 
+  const handleSignOutAllDevices = async () => {
+    try {
+      const userId = user["https://auth0.com/user_id"];
+      const response = await fetch(`${config.apiUrl}/auth0/signout-devices`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          client_id: user['https://shell.com/appid']
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to sign out from all devices');
+      }
+
+      // Use Auth0's logout with federated parameter
+      logout({ 
+        logoutParams: {
+          returnTo: window.location.origin + '/logout-success',
+          federated: true
+        }
+      });
+    } catch (error) {
+      console.error('Error signing out from all devices:', error);
+    }
+  };
+
   const renderContent = () => {
     switch (activeView) {
       case 'password':
@@ -1325,7 +1355,7 @@ const Profile = () => {
                 <span className="icon">↪️</span>
                 Sign out
               </li>
-              <li onClick={handleSignOut}>
+              <li onClick={handleSignOutAllDevices}>
                 <span className="icon">📱</span>
                 Sign out of all devices
               </li>
