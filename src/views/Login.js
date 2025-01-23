@@ -23,6 +23,18 @@ const Login = () => {
       authorizationParams: {
         organization: orgMatches[1],
         invitation: inviteMatches[1],
+        ui_locales: selectedLocale
+      }
+    });
+  }else if(parsedSearch.get('journey') === 'sms_invite'){
+    loginWithRedirect({
+      authorizationParams: {
+        'ui_locales': selectedLocale,
+        'login_hint': parsedSearch.get('login_hint'),
+        'ext-code': parsedSearch.get('code'),
+        'authenticator': true,
+        'invite_journey': true,
+        'passwordless': parsedSearch.has('passwordless')
       }
     });
   }else{

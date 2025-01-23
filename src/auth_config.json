@@ -42,6 +42,10 @@
       "authorizationParams": {
         "organization": "org_RFN4BI4eiF1RwGjW"
       }
+    },
+    "sms_invite": {
+      "clientId": "S0JEM4iyNyyF8XFqnnembY9NFRe4r46H",
+      "domain": "shelldemo.oktademo.cloud"
     }
   },
   "apiUrl": "https://shellcipm-middleware.onrender.com/api"
