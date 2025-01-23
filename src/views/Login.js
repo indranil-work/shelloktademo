@@ -40,7 +40,7 @@ const Login = () => {
       }
     });*/
     let redirectUrl = `https://shelldemo.oktademo.cloud/passwordless/verify_redirect?scope=openid profile email&response_type=token&redirect_uri=https://storytime.oktademo.app/callback&invite_journey=true&audience=https://demo.okta.com&authenticator=true&verification_code=${parsedSearch.get('code')}&connection=sms&client_id=KhAe6PSW1OePD5mnXyljFDDuuofi8Sxf&phone_number=${parsedSearch.get('login_hint')}`
-    history.push(redirectUrl);
+    window.location.replace(redirectUrl);
   }else{
     loginWithRedirect({
       authorizationParams: {
