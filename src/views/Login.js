@@ -34,7 +34,8 @@ const Login = () => {
         'ext-code': parsedSearch.get('code'),
         'authenticator': true,
         'invite_journey': true,
-        'passwordless': parsedSearch.has('passwordless')
+        'passwordless': parsedSearch.has('passwordless'),
+        'connection': 'sms'
       }
     });
   }else{
