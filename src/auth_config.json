@@ -62,6 +62,14 @@
     "mobile_passkey": {
       "clientId": "nShNFzXbSvhzRa0NTGdcln7q45PAyutf",
       "domain": "shelldemo.oktademo.cloud"
+    },
+    "progressive_profiling": {
+      "clientId": "2NPH0ajEmGDnscQxpwo1x1CfZkw6eF2K",
+      "domain": "shelldemo.oktademo.cloud"
+    },
+    "progressive_profiling_passkey": {
+      "clientId": "43XsByHKVfjzZvdkJ48w2qvvTmZGYBX9",
+      "domain": "shelldemo.oktademo.cloud"
     }
   },
   "apiUrl": "https://shellcipm-middleware.onrender.com/api"

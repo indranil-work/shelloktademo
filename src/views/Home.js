@@ -92,6 +92,8 @@ const Home = () => {
             <option value="mobile_otp_authenticator">Mobile #/OTP with Authenticator</option>
             <option value="email_passkey">Passwordless (Biometrics) - Email</option>
             <option value="mobile_passkey">Passwordless (Biometrics) - Mobile</option>
+            <option value="progressive_profiling">Progressive Profiling</option>
+            <option value="progressive_profiling_passkey">Progressive Profiling with Passwordless (Biometrics)</option>
           </select>
         </div>
 
