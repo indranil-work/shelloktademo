@@ -26,7 +26,7 @@ const Home = () => {
         <div className="journey-selector">
           <label>Select a user journey</label>
           <select defaultValue="">
-            <option value="">Email/Password with Self-registration (U)</option>
+            <option value="">Email/Password with Self-registration</option>
           </select>
         </div>
 
