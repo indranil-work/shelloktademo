@@ -27,20 +27,6 @@ const Login = () => {
         ui_locales: selectedLocale
       }
     });
-  }else if(parsedSearch.get('journey') === 'sms_invite'){
-    loginWithRedirect({
-      authorizationParams: {
-        'ui_locales': selectedLocale,
-        'login_hint': parsedSearch.get('login_hint').replace('+44', ''),
-        'ext-code': parsedSearch.get('code'),
-        'authenticator': true,
-        'invite_journey': true,
-        'passwordless': parsedSearch.has('passwordless'),
-        'connection': 'sms'
-      }
-    });
-    //let redirectUrl = `https://shelldemo.oktademo.cloud/passwordless/verify_redirect?scope=openid profile email&response_type=token&redirect_uri=https://storytime.oktademo.app/callback&invite_journey=true&audience=https://demo.okta.com&authenticator=true&verification_code=${parsedSearch.get('code')}&connection=sms&client_id=KhAe6PSW1OePD5mnXyljFDDuuofi8Sxf&phone_number=${parsedSearch.get('login_hint')}`
-    //window.location.replace(redirectUrl);
   }else{
     loginWithRedirect({
       authorizationParams: {

@@ -87,6 +87,11 @@ const Home = () => {
             <option value="sniper_link">Email/Password Self-registration - sniper link verification</option>
             <option value="sms_otp">Mobile number & OTP</option>
             <option value="phone_password">Mobile number & password</option>
+            <option value="email_password_authenticator">Email/Password with Authenticator</option>
+            <option value="mobile_password_authenticator">Mobile #/Password with Authenticator</option>
+            <option value="mobile_otp_authenticator">Mobile #/OTP with Authenticator</option>
+            <option value="email_passkey">Passwordless (Biometrics) - Email</option>
+            <option value="mobile_passkey">Passwordless (Biometrics) - Mobile</option>
           </select>
         </div>
 

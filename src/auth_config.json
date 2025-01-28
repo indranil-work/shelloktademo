@@ -43,8 +43,24 @@
         "organization": "org_RFN4BI4eiF1RwGjW"
       }
     },
-    "sms_invite": {
-      "clientId": "S0JEM4iyNyyF8XFqnnembY9NFRe4r46H",
+    "email_password_authenticator": {
+      "clientId": "G3xo2UBfeCai5Qs1orvolsku5qjX1Gbx",
+      "domain": "shelldemo.oktademo.cloud"
+    },
+    "mobile_password_authenticator": {
+      "clientId": "IBXQ1ivvMZPidutkrB81vqNvWi4cFAz1",
+      "domain": "shelldemo.oktademo.cloud"
+    },
+    "mobile_otp_authenticator": {
+      "clientId": "bFCOHgoyerSKSgExlMxA1AfKxU9UiQmt",
+      "domain": "shelldemo.oktademo.cloud"
+    },
+    "email_passkey": {
+      "clientId": "C1OUeBDDfVcsmxxkK0Yuu6fmMdymO4u6",
+      "domain": "shelldemo.oktademo.cloud"
+    },
+    "mobile_passkey": {
+      "clientId": "nShNFzXbSvhzRa0NTGdcln7q45PAyutf",
       "domain": "shelldemo.oktademo.cloud"
     }
   },
