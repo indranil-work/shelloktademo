@@ -70,6 +70,10 @@
     "progressive_profiling_passkey": {
       "clientId": "43XsByHKVfjzZvdkJ48w2qvvTmZGYBX9",
       "domain": "shelldemo.oktademo.cloud"
+    },
+    "existing_otp": {
+      "clientId": "R3OL0vnjU3fi6FeVdDtBuIBDogUDfPQp",
+      "domain": "shelldemo.oktademo.cloud"
     }
   },
   "apiUrl": "https://shellcipm-middleware.onrender.com/api"
