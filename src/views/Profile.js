@@ -1333,10 +1333,6 @@ const Profile = () => {
                 <span className="icon">✉️</span>
                 Change email
               </li>
-              <li>
-                <span className="icon">🔐</span>
-                Passwordless authentication
-              </li>
               <li
                 className={activeView === 'revoke' ? 'active' : ''}
                 onClick={() => setActiveView('revoke')}
